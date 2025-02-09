@@ -53,39 +53,31 @@ void Reset(Arena* const arena) {
 }
 
 void Free(Arena* arena) {
-
 	if (arena && arena->data) {
 		free(arena->data);
+		arena->data = nullptr;
 		arena->size = 0;
 		arena->capacity = 0;
-		arena->data = nullptr;
 
-		if (arena->nextArena) {
-			Free(arena->nextArena);
+		Arena* currentArena = nullptr;
+		currentArena = arena->nextArena;
+		while (currentArena && currentArena->data) {
+			free(currentArena->data);
+			currentArena->data = nullptr;
+			currentArena->size = 0;
+			currentArena->capacity = 0;
+
+			Arena* nextArena = nullptr;
+			nextArena = currentArena->nextArena;
+			free(currentArena);
+			currentArena = nextArena;
 		}
 
-		// dont free the last one, this should be handled by the user
-		free(arena);
-		arena = nullptr;
+		// Maybe the last should be handled by the user
+		// it could be stack allocated
+		//free(arena);
+		//arena = nullptr;
 	}
-
-	//Arena* currentArena = nullptr;
-	//currentArena = arena;
-
-	//while (currentArena && currentArena->data) {
-	//	free(currentArena->data);
-	//	currentArena->size = 0;
-	//	currentArena->capacity = 0;
-	//	currentArena->data = nullptr;
-
-	//	Arena* nextArena = currentArena->nextArena;
-
-	//	free(currentArena);
-
-	//	if (nextArena) {
-	//		currentArena = nextArena;
-	//	}
-	//}
 }
 
 void PrintArena(const Arena* const arena)
