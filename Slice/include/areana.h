@@ -1,9 +1,6 @@
 #include <assert.h>
 #include <iostream>
 
-// Just for test
-static int FREE_TIMES = 0;
-
 struct Arena {
 	size_t capacity = 0;
 	size_t size = 0;
@@ -53,31 +50,38 @@ void Reset(Arena* const arena) {
 }
 
 void Free(Arena* arena) {
-	if (arena && arena->data) {
+	if (!arena)
+	{
+		return;
+	}
+
+	if (arena->data)
+	{
 		free(arena->data);
 		arena->data = nullptr;
-		arena->size = 0;
-		arena->capacity = 0;
+	}
+	arena->size = 0;
+	arena->capacity = 0;
 
-		Arena* currentArena = nullptr;
-		currentArena = arena->nextArena;
-		while (currentArena && currentArena->data) {
+	Arena* currentArena = nullptr;
+	currentArena = arena->nextArena;
+	while (currentArena)
+	{
+		if (currentArena->data)
+		{
 			free(currentArena->data);
 			currentArena->data = nullptr;
-			currentArena->size = 0;
-			currentArena->capacity = 0;
-
-			Arena* nextArena = nullptr;
-			nextArena = currentArena->nextArena;
-			free(currentArena);
-			currentArena = nextArena;
 		}
+		currentArena->size = 0;
+		currentArena->capacity = 0;
 
-		// Maybe the last should be handled by the user
-		// it could be stack allocated
-		//free(arena);
-		//arena = nullptr;
+		Arena* nextArena = nullptr;
+		nextArena = currentArena->nextArena;
+		free(currentArena);
+		currentArena = nextArena;
 	}
+
+	arena->nextArena = nullptr;
 }
 
 void PrintArena(const Arena* const arena)
@@ -92,6 +96,4 @@ void PrintArena(const Arena* const arena)
 	if (arena->nextArena) {
 		PrintArena(arena->nextArena);
 	}
-
-	std::cout << "Free times" << FREE_TIMES << std::endl;
 }
