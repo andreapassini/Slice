@@ -102,6 +102,4 @@ void PrintArena(const Arena* const arena)
 	{
 		PrintArena(arena->nextArena);
 	}
-
-	std::cout << "Free times" << FREE_TIMES << std::endl;
 }
